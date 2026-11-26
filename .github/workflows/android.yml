@@ -1,4 +1,3 @@
-
 name: Build Android APK
 
 on:
@@ -32,11 +31,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # 👇 قمنا بتغيير release إلى debug هنا
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --debug
 
+      # 👇 قمنا بتغيير اسم الملف والمسار إلى debug هنا
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: tariq-al-noor-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: tariq-al-noor-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
