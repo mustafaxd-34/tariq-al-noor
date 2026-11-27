@@ -22,7 +22,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.3'
+          flutter-version: '3.50.1'
           channel: stable
 
       - name: Create Android platform
@@ -33,11 +33,11 @@ jobs:
 
       # 👇 قمنا بتغيير release إلى debug هنا
       - name: Build APK
-        run: flutter build apk --debug
+        run: flutter build apk --release
 
       # 👇 قمنا بتغيير اسم الملف والمسار إلى debug هنا
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: tariq-al-noor-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: tariq-al-noor-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
