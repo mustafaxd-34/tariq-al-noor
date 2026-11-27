@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/pdf.dart';
@@ -48,7 +49,7 @@ class _ReportsScreenState extends State<ReportsScreen>{
   try{
    pw.Widget cell(String v,{bool header=false})=>pw.Padding(padding:const pw.EdgeInsets.all(5),child:arabicPdfText(v,font,size:header?10:9));
    final cells=<pw.TableRow>[];
-   cells.add(pw.TableRow(decoration:const pw.BoxDecoration(color:PdfColors.blueGrey),children:['التاريخ','الطالب','الحضور','الحفظ الجديد','المراجعة','الشيخ'].map((v)=>cell(v,header:true)).toList()));
+   cells.add(pw.TableRow(decoration:pw.BoxDecoration(color:PdfColors.blueGrey),children:['التاريخ','الطالب','الحضور','الحفظ الجديد','المراجعة','الشيخ'].map((v)=>cell(v,header:true)).toList()));
    for(final r in rows){final st=s.students.firstWhere((x)=>x.id==r.studentId);cells.add(pw.TableRow(children:[r.date,st.name,r.present?'حاضر':'غائب',r.newMemorization,r.review,r.teacherName].map((v)=>cell(v.isEmpty?'—':v)).toList()));}
    doc.addPage(pw.MultiPage(pageFormat:const PdfPageFormat(842,595),margin:const pw.EdgeInsets.all(26),footer:(c)=>pw.Align(alignment:pw.Alignment.center,child:arabicPdfText('طريق النور • صفحة ${c.pageNumber} من ${c.pagesCount}',font,size:9)),build:(c)=>[
     pw.Align(alignment:pw.Alignment.center,child:arabicPdfText(s.selected?.name??'طريق النور',font,size:22)),
