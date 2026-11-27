@@ -11,12 +11,20 @@ class AppStore extends ChangeNotifier {
   Institution? selected;
   Future<void> initialize() async {
     final path=p.join(await getDatabasesPath(),'tariq_al_noor.db');
-    db=await openDatabase(path,version:1,onCreate:(d,v) async {
+    db=await openDatabase(path,version:2,onCreate:(d,v) async {
       await d.execute('CREATE TABLE institutions(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,section TEXT NOT NULL)');
-      await d.execute('CREATE TABLE students(id INTEGER PRIMARY KEY AUTOINCREMENT,institution_id INTEGER NOT NULL,name TEXT NOT NULL,phone TEXT,join_date TEXT NOT NULL,pages_before REAL NOT NULL DEFAULT 0,FOREIGN KEY(institution_id) REFERENCES institutions(id))');
-      await d.execute('CREATE TABLE daily_records(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER NOT NULL,date TEXT NOT NULL,present INTEGER NOT NULL,new_memorization TEXT NOT NULL,review TEXT NOT NULL,hadith TEXT NOT NULL,jazariyya TEXT NOT NULL,tuhfa TEXT NOT NULL,new_pages REAL NOT NULL,grade INTEGER NOT NULL,notes TEXT NOT NULL,UNIQUE(student_id,date),FOREIGN KEY(student_id) REFERENCES students(id))');
+      await d.execute("CREATE TABLE students(id INTEGER PRIMARY KEY AUTOINCREMENT,institution_id INTEGER NOT NULL,name TEXT NOT NULL,phone TEXT,join_date TEXT NOT NULL,pages_before REAL NOT NULL DEFAULT 0,guardian_name TEXT NOT NULL DEFAULT '',guardian_phone TEXT NOT NULL DEFAULT '',address TEXT NOT NULL DEFAULT '',notes TEXT NOT NULL DEFAULT '',FOREIGN KEY(institution_id) REFERENCES institutions(id))");
+      await d.execute("CREATE TABLE daily_records(id INTEGER PRIMARY KEY AUTOINCREMENT,student_id INTEGER NOT NULL,date TEXT NOT NULL,present INTEGER NOT NULL,new_memorization TEXT NOT NULL,review TEXT NOT NULL,hadith TEXT NOT NULL,jazariyya TEXT NOT NULL,tuhfa TEXT NOT NULL,new_pages REAL NOT NULL,grade INTEGER NOT NULL,notes TEXT NOT NULL DEFAULT '',teacher_name TEXT NOT NULL DEFAULT '',UNIQUE(student_id,date),FOREIGN KEY(student_id) REFERENCES students(id))");
       await d.execute('CREATE TABLE settings(key TEXT PRIMARY KEY,value TEXT NOT NULL)');
       await d.execute('CREATE TABLE report_archive(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT NOT NULL,created_at TEXT NOT NULL,payload TEXT NOT NULL)');
+    },onUpgrade:(d,oldVersion,newVersion) async {
+      if(oldVersion<2){
+        await d.execute("ALTER TABLE students ADD COLUMN guardian_name TEXT NOT NULL DEFAULT ''");
+        await d.execute("ALTER TABLE students ADD COLUMN guardian_phone TEXT NOT NULL DEFAULT ''");
+        await d.execute("ALTER TABLE students ADD COLUMN address TEXT NOT NULL DEFAULT ''");
+        await d.execute("ALTER TABLE students ADD COLUMN notes TEXT NOT NULL DEFAULT ''");
+        await d.execute("ALTER TABLE daily_records ADD COLUMN teacher_name TEXT NOT NULL DEFAULT ''");
+      }
     });
     await refresh();
   }
@@ -24,8 +32,8 @@ class AppStore extends ChangeNotifier {
     institutions=(await db.query('institutions',orderBy:'id')).map(Institution.fromMap).toList();
     if(selected==null && institutions.isNotEmpty) selected=institutions.first;
     if(selected!=null && !institutions.any((e)=>e.id==selected!.id)) selected=institutions.isEmpty?null:institutions.first;
-    students=(await db.query('students',where:selected==null?'1=0':'institution_id=?',whereArgs:selected==null?[]:[selected!.id])).map(Student.fromMap).toList();
-    records=(await db.query('daily_records')).map(DailyRecord.fromMap).toList();
+    students=(await db.query('students',where:selected==null?'1=0':'institution_id=?',whereArgs:selected==null?[]:[selected!.id],orderBy:'name COLLATE NOCASE')).map(Student.fromMap).toList();
+    records=(await db.query('daily_records',orderBy:'date DESC')).map(DailyRecord.fromMap).toList();
     notifyListeners();
   }
   void select(Institution? i){selected=i;refresh();}
@@ -37,6 +45,7 @@ class AppStore extends ChangeNotifier {
     await db.delete('students',where:'institution_id=?',whereArgs:[id]);await db.delete('institutions',where:'id=?',whereArgs:[id]);selected=null;await refresh();
   }
   Future<void> addStudent(Student s) async {await db.insert('students',s.toMap());await refresh();}
+  Future<void> updateStudent(Student s) async {await db.update('students',s.toMap()..remove('id'),where:'id=?',whereArgs:[s.id]);await refresh();}
   Future<void> deleteStudent(int id) async {await db.delete('daily_records',where:'student_id=?',whereArgs:[id]);await db.delete('students',where:'id=?',whereArgs:[id]);await refresh();}
   Future<void> saveRecord(DailyRecord r) async {
     await db.insert('daily_records',r.toMap(),conflictAlgorithm:ConflictAlgorithm.replace);
