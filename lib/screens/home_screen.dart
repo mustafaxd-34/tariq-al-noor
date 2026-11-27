@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../data/app_store.dart';
 import '../theme/app_theme.dart';
+import 'dashboard_screen.dart';
 import 'students_screen.dart';
 import 'session_screen.dart';
 import 'reports_screen.dart';
@@ -11,7 +12,7 @@ import 'settings_screen.dart';
 class HomeScreen extends StatefulWidget {const HomeScreen({super.key});@override State<HomeScreen> createState()=>_HomeScreenState();}
 class _HomeScreenState extends State<HomeScreen>{
  int index=0;
- final pages=const [StudentsScreen(),SessionScreen(),ReportsScreen(),CertificatesScreen(),SettingsScreen()];
+ final pages=const [DashboardScreen(),StudentsScreen(),SessionScreen(),ReportsScreen(),CertificatesScreen(),SettingsScreen()];
  @override Widget build(BuildContext context){
   final store=context.watch<AppStore>();
   return Scaffold(
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen>{
    ]),
    body:Container(decoration:const BoxDecoration(gradient:LinearGradient(begin:Alignment.topLeft,end:Alignment.bottomRight,colors:[AppTheme.green,AppTheme.deep])),child:pages[index]),
    bottomNavigationBar:NavigationBar(backgroundColor:AppTheme.deep,indicatorColor:AppTheme.gold.withValues(alpha:.2),selectedIndex:index,onDestinationSelected:(v)=>setState(()=>index=v),destinations:const [
+    NavigationDestination(icon:Icon(Icons.dashboard_outlined),label:'الرئيسية'),
     NavigationDestination(icon:Icon(Icons.people_outline),label:'الطلاب'),
     NavigationDestination(icon:Icon(Icons.edit_calendar),label:'الحلقة'),
     NavigationDestination(icon:Icon(Icons.assessment_outlined),label:'التقارير'),
