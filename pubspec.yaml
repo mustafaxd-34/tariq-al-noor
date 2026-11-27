@@ -3,7 +3,7 @@ description: Quran memorization tracking app - Tariq Al-Noor
 publish_to: 'none'
 version: 1.0.0+1
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
@@ -12,14 +12,16 @@ dependencies:
   sqflite: 2.4.1
   path: ^1.9.1
   intl: 0.20.1
-  pdf: 3.11.1
-  printing: 5.13.4
+  pdf: ^3.13.0
+  printing: ^5.14.2
   share_plus: 10.1.4
   path_provider: 2.1.5
   signature: 5.5.0
   fl_chart: 0.70.2
   file_picker: 8.1.7
   image: 4.3.0
+  pdf_text_shaper: ^1.1.1
+  cross_file: ^0.3.4+2
 dev_dependencies:
   flutter_test:
     sdk: flutter
